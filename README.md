@@ -65,7 +65,8 @@ All virtual machines in this SOC Home Lab are configured to use **NAT networking
 
 For this lab, the internal subnet is configured as:
 
-![VM Network Settings - NAT Mode](screenshots/ubuntu/nat_config.png)
+<img src="screenshots/ubuntu/nat_config.png" width="600">
+
 
 This means:
 
