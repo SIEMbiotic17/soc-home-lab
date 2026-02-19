@@ -50,7 +50,7 @@ The environment consists of:
 
 The Ubuntu Server acts as the core SOC system where SIEM and IDS components will be installed. All simulated attack traffic generated from the attacker machine will traverse the isolated virtual network and be monitored by the SOC node.
 
-![Architecture](screenshots/ubuntu/Architecture_Flow.png)
+<img src="screenshots/ubuntu/Architecture_Flow.png" width="650">
 
 This architecture ensures:
 
