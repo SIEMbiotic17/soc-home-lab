@@ -4,8 +4,9 @@
 1. [Project Overview](#1-project-overview)
 2. [Lab Objectives](#2-lab-objectives)
 3. [Lab Architecture](#3-lab-architecture)
-4. [Network Configuration](#network-configuration)
-5. [Lab Environment Configuration](#lab-environment-configuration)
+4. [Network Configuration](#4-network-configuration)
+5. [Lab Environment Configuration](#5-lab-environment-configuration)
+6. [Server Hardening & Initial Setup](#6-server-hardening--initial-setup)
 
 
 ## 1. Project Overview
@@ -51,22 +52,19 @@ The SOC lab is deployed using a virtualized environment to simulate a controlled
 
 The environment consists of:
 
-* **Host Machine** – Primary system running VMware
-* **Ubuntu Server (SOC Node)** – Centralized log collection and analysis system
-* **Kali Linux (Attacker Node)** – Used to simulate offensive activity
-* **Host-Only Virtual Network** – Isolated network segment for secure lab communication
+| Component / Tool               | Role in the Lab                                             |
+| ------------------------------ | ----------------------------------------------------------- |
+| **Host Machine (VMware)**      | Runs and manages all virtual machines                       |
+| **Ubuntu Server (SOC Node)**   | Centralized log collection, analysis, and monitoring server |
+| **Kali Linux (Attacker Node)** | Simulates offensive security activity and attack scenarios  |
+| **NAT Virtual Network**        | Provides an isolated internal subnet with internet access   |
+| **Wazuh**                      | SIEM platform for threat detection and alert generation     |
+| **Elastic Stack**              | Log indexing, storage, and visualization backend            |
+
 
 The Ubuntu Server acts as the core SOC system where SIEM and IDS components will be installed. All simulated attack traffic generated from the attacker machine will traverse the isolated virtual network and be monitored by the SOC node.
 
 <img src="screenshots/ubuntu/Architecture_Flow.png" width="650">
-
-| Tool          | Purpose                      |
-| ------------- | ---------------------------- |
-| Kali Linux    | Attack simulation            |
-| Ubuntu Server | SOC node/log collection    |
-| Wazuh         | SIEM / detection             |
-| Elastic Stack | Log indexing & visualization |
-
 
 This architecture ensures:
 
@@ -75,7 +73,7 @@ This architecture ensures:
 * Clear separation of roles (attacker vs defender)
 * Realistic detection workflow
 
-## Network Configuration
+## 4. Network Configuration
 
 All virtual machines in this SOC Home Lab are configured to use **NAT networking mode** within the hypervisor. This ensures that each VM resides within the same internal virtual subnet while still having internet access through the host machine.
 
@@ -97,7 +95,7 @@ Using a shared subnet is critical for a SOC lab environment to ensure:
 
 This configuration simulates a small enterprise internal LAN environment, making it ideal for attack simulation, log collection, and detection testing.
 
-## Lab Environment Configuration
+## 5. Lab Environment Configuration
 
 ### Host Virtualization Platform
 
@@ -148,6 +146,86 @@ OpenSSH Server was enabled during installation to allow secure remote access to 
 This screenshot verifies the Ubuntu version, hostname, and IP configuration, confirming the server is correctly installed and connected to the NAT subnet.
 
 <img src="screenshots/ubuntu/system_check.png" width="800">
+
+---
+
+### 6. Server Hardening & Initial Setup
+
+Before deploying security monitoring tools, it is critical to ensure that the underlying server is properly hardened. A misconfigured SOC server can become a security risk itself.
+
+This section focuses on patching, securing remote access, and validating system resources before installing SIEM components.
+
+#### 6.1 System Update & Upgrade
+
+**Purpose:** Ensure the OS is fully patched and protected.
+
+**Commands run:**
+
+```bash
+sudo apt update && sudo apt upgrade -y
+```
+
+**Screenshot:** Shows successful completion of updates.
+
+<img src="screenshots/ubuntu/update_complete.png" width="700">
+
+---
+
+#### 6.2 6.2 SSH Service Verification
+
+**Purpose:** Verify OpenSSH service is running securely and root login is disabled.
+
+**Command run:**
+
+```bash
+sudo systemctl status ssh
+```
+
+**Screenshot:** Confirms SSH service is active and running.
+
+<img src="screenshots/ubuntu/ssh_status.png" width="700">
+
+---
+
+#### 6.3 Firewall Setup (UFW)
+
+**Purpose:** Limit access to only necessary ports and services.
+
+**Commands run:**
+
+```bash
+sudo ufw allow ssh
+sudo ufw enable
+sudo ufw status
+```
+
+**Screenshot:** Shows UFW enabled and rules applied.
+
+<img src="screenshots/ubuntu/ufw_status.png" width="700">
+
+---
+
+#### 6.4 Disk & Resource Verification
+
+**Purpose:** Confirm VM resources match the planned lab setup.
+
+**Commands run:**
+
+```bash
+df -h          # Disk usage
+free -h        # RAM usage
+lscpu          # CPU info
+```
+
+**Screenshot:** Shows proper disk, RAM, and CPU allocation.
+
+<img src="screenshots/ubuntu/resource_check.png" width="700">
+
+---
+
+#### 6.5 Summary
+
+At this stage, the Ubuntu Server is hardened, updated, and validated. The environment is now prepared for SIEM and IDS deployment in the next phase of the SOC build.
 
 ---
 
