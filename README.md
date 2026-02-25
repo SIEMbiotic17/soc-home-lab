@@ -8,6 +8,7 @@
 5. [Lab Environment Configuration](#5-lab-environment-configuration)
 6. [Server Hardening & Initial Setup](#6-server-hardening--initial-setup)
 7. [Wazuh SIEM Installation & Configuration](#7-wazuh-siem-installation--configuration)
+8. [Agent Deployment & Log Onboarding](#8-agent-deployment--log-onboarding)
 
 
 ## 1. Project Overview
@@ -365,6 +366,186 @@ The Ubuntu Server now functions as:
 The environment is now prepared for endpoint agent deployment and attack simulation testing in the next phase.
 
 ---
+
+# 8. Agent Deployment & Log Onboarding
+
+With the Wazuh SIEM stack operational on the Ubuntu SOC node, the next phase is onboarding an endpoint into the monitoring environment.
+
+Kali Linux will act as a monitored endpoint, sending logs to the SIEM. This mirrors real SOC workflows where endpoints must be enrolled before detection and analysis.
+
+---
+
+## 8.1 Kali Linux VM Configuration
+
+VM configuration optimized for 8GB host:
+
+| Resource | Allocation   |
+| -------- | ------------ |
+| RAM      | 2 GB         |
+| CPU      | 2 cores      |
+| Disk     | 30 GB        |
+| Network  | VMnet8 (NAT) |
+
+<img src="screenshots/agent/kali_vm_hardware_config.png" width="700">
+
+---
+
+## 8.2 Network Verification
+
+Verify Kali IP:
+
+```bash
+ip a
+```
+
+Ping the Wazuh Manager:
+
+```bash
+ping 192.168.1.136
+```
+
+<img src="screenshots/agent/kali_ip_address.png" width="800">
+<img src="screenshots/agent/kali_ping_manager_success.png" width="800">
+
+---
+
+## 8.3 Installing the Wazuh Agent
+
+Add GPG key:
+
+```bash
+curl -s https://packages.wazuh.com/key/GPG-KEY-WAZUH | sudo gpg --dearmor -o /usr/share/keyrings/wazuh.gpg
+```
+
+<img src="screenshots/agent/wazuh_gpg_key_added.png" width="800">
+
+Add repository:
+
+```bash
+echo "deb [signed-by=/usr/share/keyrings/wazuh.gpg] https://packages.wazuh.com/4.x/apt stable main" | sudo tee /etc/apt/sources.list.d/wazuh.list
+```
+
+<img src="screenshots/agent/wazuh_repo_added.png" width="800">
+
+Update & install agent:
+
+```bash
+sudo apt update
+sudo WAZUH_MANAGER='192.168.1.136' apt install wazuh-agent -y
+```
+
+<img src="screenshots/agent/apt_update_wazuh_repo.png" width="800">
+<img src="screenshots/agent/wazuh_agent_installation.png" width="800">
+
+Enable and start agent:
+
+```bash
+sudo systemctl enable wazuh-agent
+sudo systemctl start wazuh-agent
+sudo systemctl status wazuh-agent
+```
+
+<img src="screenshots/agent/wazuh_agent_service_running.png" width="800">
+
+---
+
+## 8.4 Secure Agent Registration (Key-Based)
+
+On Ubuntu manager, add Kali agent:
+
+```bash
+sudo /var/ossec/bin/manage_agents
+```
+
+<img src="screenshots/agent/manage_agents_add_kali.png" width="800">
+
+Extract agent key:
+
+<img src="screenshots/agent/kali_import_agent_key.png" width="800">
+
+Import key on Kali using the same utility and restart the agent. Verify on manager:
+
+```bash
+sudo /var/ossec/bin/agent_control -l
+```
+
+<img src="screenshots/agent/agent_control_list_output.png" width="800">
+
+---
+
+## 8.5 Firewall Considerations
+
+If the agent cannot connect, ensure ports are allowed on the manager:
+
+```bash
+sudo ufw allow 1514
+sudo ufw allow 1515
+```
+
+<img src="screenshots/agent/if_server_firewall_blocks_port_1514.png" width="800">
+
+---
+
+## 8.6 Dashboard Verification
+
+Access the Wazuh Dashboard:
+
+```
+https://192.168.1.136
+```
+
+Under **Wazuh → Agents**, verify `kali-linux`:
+
+* Status: Active
+* OS correctly identified
+* Keepalive signals received
+
+<img src="screenshots/agent/wazuh_dashboard_agent_active.png" width="800">
+
+---
+
+## 8.7 Log Generation & Event Validation
+
+Generate events on Kali:
+
+**Authentication attempts:**
+
+```bash
+sudo su -
+sudo su invaliduser
+```
+
+<img src="screenshots/agent/kali_auth_log_generation.png" width="800">
+
+**Package installation:**
+
+```bash
+sudo apt install sl -y
+```
+
+<img src="screenshots/agent/kali_package_install_log.png" width="800">
+
+**Events visible in Dashboard (Security Events filtered by `kali-linux`):**
+
+<img src="screenshots/agent/wazuh_event_validation_kali1.png" width="800">
+<img src="screenshots/agent/wazuh_event_validation_kali2.png" width="800">
+
+---
+
+## 8.8 Summary
+
+Kali endpoint is now:
+
+* Installed with Wazuh agent
+* Securely registered and active
+* Sending real-time logs to the SIEM
+
+The SOC lab is fully operational for attack simulation and monitoring.
+
+---
+
+
+
 
 
 
