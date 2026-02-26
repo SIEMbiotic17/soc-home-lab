@@ -5,7 +5,6 @@
 [![Kali Linux](https://img.shields.io/badge/Kali_Linux-2023.3-blue?style=for-the-badge&logo=kali-linux&logoColor=white)](https://www.kali.org/)
 [![Wazuh](https://img.shields.io/badge/Wazuh-SIEM-0056D2?style=for-the-badge&logo=wazuh&logoColor=white)](https://wazuh.com/)
 [![VMware](https://img.shields.io/badge/VMware-Workstation-607078?style=for-the-badge&logo=vmware&logoColor=white)](https://www.vmware.com/)
-[![Security](https://img.shields.io/badge/SOC-Lab-F535AA?style=for-the-badge&logo=security&logoColor=white)](https://www.cisecurity.org/)
 [![MITRE ATT&CK](https://img.shields.io/badge/MITRE-ATT%26CK-FF6600?style=for-the-badge&logo=mitre&logoColor=white)](https://attack.mitre.org/)
 
 ## Table of Contents
